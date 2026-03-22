@@ -1,64 +1,64 @@
-# Notchi
+# Notchi for Windows
 
-> [!IMPORTANT]
-> If you're currently on Notchi `1.0.0`, please install `1.0.1` or later manually from the DMG [here](https://github.com/sk-ruban/notchi/releases/latest). The in-app updater in `1.0.0` is broken for that first upgrade, but should work thereafter.
+A Windows desktop port of [sk-ruban/notchi](https://github.com/sk-ruban/notchi), built for Claude Code.
 
-A macOS notch companion that reacts to Claude Code activity in real-time.
+This version keeps the original pixel mascot and sprite sheets, but adapts the app to Windows with a small always-on-top overlay, PowerShell hooks, and local event listening.
 
-This repository also includes an in-progress Windows port in [windows/](./windows/README.md).
+## What It Does
 
-https://github.com/user-attachments/assets/e417bd40-cae8-47c0-998a-905166cf3513
+- Reacts to Claude Code activity in real time
+- Shows one sprite per Claude Code session
+- Uses the original Notchi sprite animations from the upstream project
+- Switches between `idle`, `working`, `waiting`, `compacting`, and `sleeping`
+- Switches emotions between `neutral`, `happy`, `sad`, and `sob`
+- Lets you hide to a compact mascot-only view or expand into a detail panel
 
-## What it does
+## Current Status
 
-- Reacts to Claude Code events in real-time (thinking, working, errors, completions)
-- Analyzes conversation sentiment to show emotions (happy, sad, neutral, sob)
-- Click to expand and see session time and usage quota
-- Supports multiple concurrent Claude Code sessions with individual sprites
-- Sound effects for events (optional, auto-muted when terminal is focused)
-- Auto-updates via Sparkle
+The Windows port is usable, but it is still not a full 1:1 port of the original macOS app.
 
-## Requirements
+Implemented today:
 
-- macOS 15.0+ (Sequoia)
-- MacBook with notch
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed
+- Windows hook installer for Claude Code
+- Local TCP event listener
+- Multi-session sprite rendering
+- Detail panel with recent prompt, reply, and activity info
+- Automatic state and emotion switching
+- Original upstream sprite-sheet assets
 
-## Install
+Not ported yet:
 
-1. Download `Notchi-x.x.x.dmg` from the [latest GitHub Release](https://github.com/sk-ruban/notchi/releases/latest)
-2. Open the DMG and drag Notchi to Applications
-3. Launch Notchi — it auto-installs Claude Code hooks on first launch
-4. A macOS keychain popup will appear asking to access Claude Code's cached OAuth token (used for API usage stats). Click **Always Allow** so it won't prompt again on future launches
+- macOS notch UI
+- Sparkle auto-updates
+- macOS keychain integration
+- exact visual parity with the native Swift app
 
-   <img src="assets/keychain-popup.png" alt="Keychain access popup" width="450">
+## Run
 
-5. *(Optional)* Click the notch to expand → open Settings → paste your Anthropic API key. This enables sentiment analysis of your prompts so the mascot reacts emotionally
-
-   <img src="assets/emotion-settings.png" alt="Emotion analysis settings" width="400">
-
-6. Start using Claude Code and watch Notchi react
-
-## How it works
-
-```
-Claude Code --> Hooks (shell scripts) --> Unix Socket --> Event Parser --> State Machine --> Animated Sprites
+```powershell
+cd C:\Users\admin\Desktop\Codex\notchi\windows
+python app.py
 ```
 
-Notchi registers shell script hooks with Claude Code on launch. When Claude Code emits events (tool use, thinking, prompts, session start/end), the hook script sends JSON payloads to a Unix socket. The app parses these events, runs them through a state machine that maps to sprite animations (idle, working, sleeping, compacting, waiting), and uses the Anthropic API to analyze user prompt sentiment for emotional reactions.
+On launch, the app starts in hide mode and attempts to install the Claude Code hook automatically.
 
-Each Claude Code session gets its own sprite on the grass island. Clicking expands the notch panel to show a live activity feed, session info, and API usage stats.
+More Windows-specific notes are in [windows/README.md](windows/README.md).
 
-## Contributing
+## Project Structure
 
-If you have any bugs, ideas, or would like to contribute through pull requests, please check out [Contributing to Notchi](CONTRIBUTING.md).
+- [windows/](windows/README.md): Windows app and PowerShell hook
+- [notchi/notchi/Assets.xcassets](notchi/notchi/Assets.xcassets): original upstream sprite assets
 
-## Credits
+## Attribution
 
-- [Claude Island](https://github.com/farouqaldori/claude-island) — design inspiration for the app
-- [Readout](https://readout.org) — design inspiration for [notchi.app](https://notchi.app)
-- [Aseprite](https://www.aseprite.org/) — sprite design
+This project is based on the original [sk-ruban/notchi](https://github.com/sk-ruban/notchi) project.
+
+Credits to the original authors for:
+
+- the app concept
+- sprite art and animation
+- macOS implementation and interaction design
 
 ## License
 
-MIT
+MIT. Please also see the original upstream repository for its history and attribution.

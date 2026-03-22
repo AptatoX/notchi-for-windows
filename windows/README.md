@@ -1,48 +1,45 @@
-﻿# Notchi for Windows
+# Notchi for Windows
 
-This folder contains a Windows port of Notchi. It keeps the core idea of the macOS app while adapting the UI and integration points for Windows:
+This folder contains the Windows desktop port of Notchi.
 
-- install Claude Code hooks
-- receive live Claude events
-- show active sessions in a small always-on-top desktop overlay
-- use the original Notchi sprite sheets from the macOS app
+## Features
 
-## What works
-
-- Windows hook installer for `~/.claude/settings.json`
-- Live event listener over `127.0.0.1:8765`
-- Multi-session activity view
-- Multi-sprite island mode with one sprite per Claude Code session
-- Click a sprite to select that session and expand its details
-- Prompt, tool, duration, recent event display, and Claude reply previews
-- Original sprite-sheet animation from the upstream project assets
-- Emotion-aware sprite switching for `neutral`, `happy`, `sad`, and `sob`
-
-## What is not ported yet
-
-- macOS notch UI
-- Sparkle auto-updates
-- Keychain integration
-- sound effects
-- exact parity with the original macOS layout and panel styling
+- Auto-installs a Claude Code hook on startup
+- Receives live Claude Code events over `127.0.0.1:8765`
+- Shows one animated mascot per active Claude Code session
+- Supports automatic state switching:
+  - `idle`
+  - `working`
+  - `waiting`
+  - `compacting`
+  - `sleeping`
+- Supports automatic emotion switching:
+  - `neutral`
+  - `happy`
+  - `sad`
+  - `sob`
+- Supports compact hide mode and expandable detail mode
 
 ## Run
 
 ```powershell
-cd windows
+cd C:\Users\admin\Desktop\Codex\notchi\windows
 python app.py
 ```
 
-Then click `Install Hook` in the app and start using Claude Code.
+## Interaction
+
+- Launch: starts in hide mode
+- Double-click a mascot: toggle between hide and detail for that session
+- Multiple Claude Code sessions: each session gets its own mascot
 
 ## Notes
 
-- The port is intentionally standalone and does not touch the original Xcode project.
-- The hook uses PowerShell and TCP instead of a Unix socket, which is a better fit for Windows.
-- Click the island area to show or hide the detailed session panel.
-- When multiple Claude Code sessions are active, each session gets its own sprite on the island.
+- The Windows port is standalone and does not modify the upstream Xcode project.
+- It uses PowerShell hooks and a local TCP listener instead of the macOS Unix socket flow.
+- The app uses the original upstream sprite sheets from `notchi/notchi/Assets.xcassets`.
 
 ## Attribution
 
-- Based on the original [sk-ruban/notchi](https://github.com/sk-ruban/notchi) project.
-- Original sprite assets and the app concept remain credited to the upstream project and its authors.
+- Based on [sk-ruban/notchi](https://github.com/sk-ruban/notchi)
+- Original sprite assets and concept remain credited to the upstream project and its authors
