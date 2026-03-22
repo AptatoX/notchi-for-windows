@@ -28,6 +28,7 @@ The Windows port is usable, but it is still not a full 1:1 port of the original 
 Implemented today:
 
 - Windows hook installer for Claude Code
+- Hook-triggered auto-launch when Claude Code activity starts
 - Local TCP event listener
 - Multi-session sprite rendering
 - Detail panel with recent prompt, reply, and activity info

@@ -1,4 +1,48 @@
-﻿$ErrorActionPreference = "SilentlyContinue"
+$ErrorActionPreference = "SilentlyContinue"
+$appDir = "__NOTCHI_APP_DIR__"
+
+function Send-NotchiPayload {
+    param(
+        [string]$JsonPayload
+    )
+
+    $client = [System.Net.Sockets.TcpClient]::new("127.0.0.1", 8765)
+    $stream = $client.GetStream()
+    $bytes = [System.Text.Encoding]::UTF8.GetBytes($JsonPayload)
+    $stream.Write($bytes, 0, $bytes.Length)
+    $stream.Dispose()
+    $client.Dispose()
+}
+
+function Start-NotchiApp {
+    if ([string]::IsNullOrWhiteSpace($appDir) -or $appDir -eq "__NOTCHI_APP_DIR__") {
+        return $false
+    }
+
+    $appPath = Join-Path $appDir "app.py"
+    if (-not (Test-Path $appPath)) {
+        return $false
+    }
+
+    $candidates = @("pythonw", "pyw", "python", "py")
+    foreach ($name in $candidates) {
+        $command = Get-Command $name -ErrorAction SilentlyContinue
+        if (-not $command) {
+            continue
+        }
+
+        $arguments = @()
+        if ($name -eq "py" -or $name -eq "pyw") {
+            $arguments += "-3"
+        }
+        $arguments += "`"$appPath`""
+
+        Start-Process -FilePath $command.Source -ArgumentList $arguments -WindowStyle Hidden | Out-Null
+        return $true
+    }
+
+    return $false
+}
 
 $payload = [Console]::In.ReadToEnd()
 if ([string]::IsNullOrWhiteSpace($payload)) {
@@ -48,12 +92,19 @@ if ($inputObject.tool_input) {
     $output.tool_input = $inputObject.tool_input
 }
 
+$jsonPayload = $output | ConvertTo-Json -Depth 8 -Compress
+
 try {
-    $client = [System.Net.Sockets.TcpClient]::new("127.0.0.1", 8765)
-    $stream = $client.GetStream()
-    $bytes = [System.Text.Encoding]::UTF8.GetBytes(($output | ConvertTo-Json -Depth 8 -Compress))
-    $stream.Write($bytes, 0, $bytes.Length)
-    $stream.Dispose()
-    $client.Dispose()
+    Send-NotchiPayload -JsonPayload $jsonPayload
+    exit 0
 } catch {
+}
+
+if (Start-NotchiApp) {
+    Start-Sleep -Milliseconds 1200
+    try {
+        Send-NotchiPayload -JsonPayload $jsonPayload
+        exit 0
+    } catch {
+    }
 }

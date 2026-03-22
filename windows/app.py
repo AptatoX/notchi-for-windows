@@ -3,6 +3,7 @@
 import json
 import math
 import socketserver
+import sys
 import threading
 import time
 import ctypes
@@ -17,6 +18,7 @@ from tkinter import messagebox
 
 APP_HOST = "127.0.0.1"
 APP_PORT = 8765
+APP_MUTEX_NAME = "Local\\NotchiWindowsSingleton"
 REFRESH_MS = 500
 ANIMATION_MS = 120
 MAX_EVENTS = 8
@@ -433,7 +435,9 @@ class HookInstaller:
 
         self.hooks_dir.mkdir(parents=True, exist_ok=True)
         hook_source = self.app_dir / "notchi-hook.ps1"
-        self.installed_hook.write_text(hook_source.read_text(encoding="utf-8"), encoding="utf-8")
+        hook_text = hook_source.read_text(encoding="utf-8")
+        hook_text = hook_text.replace("__NOTCHI_APP_DIR__", str(self.app_dir))
+        self.installed_hook.write_text(hook_text, encoding="utf-8")
 
         data: dict[str, Any] = {}
         if self.settings_path.exists():
@@ -582,6 +586,7 @@ class EventHandler(socketserver.BaseRequestHandler):
 class NotchiWindowsApp:
     def __init__(self) -> None:
         self.base_dir = Path(__file__).resolve().parent
+        self.instance_mutex = self._acquire_single_instance()
         self.parser = ConversationParser()
         self.store = SessionStore(self.parser)
         self.installer = HookInstaller(self.base_dir)
@@ -607,6 +612,18 @@ class NotchiWindowsApp:
         self.toggle_var = tk.StringVar(value="Details")
         self._build_ui()
         self._auto_install_hook()
+
+    @staticmethod
+    def _acquire_single_instance() -> int:
+        mutex = ctypes.windll.kernel32.CreateMutexW(None, False, APP_MUTEX_NAME)
+        if not mutex:
+            return 0
+
+        already_exists = ctypes.windll.kernel32.GetLastError() == 183
+        if already_exists:
+            ctypes.windll.kernel32.CloseHandle(mutex)
+            sys.exit(0)
+        return mutex
 
     def _build_ui(self) -> None:
         self.frame = tk.Frame(self.root, bg=TRANSPARENT_KEY, bd=0, highlightthickness=0)
@@ -1005,6 +1022,8 @@ class NotchiWindowsApp:
     def shutdown(self) -> None:
         self.server.shutdown()
         self.server.server_close()
+        if self.instance_mutex:
+            ctypes.windll.kernel32.CloseHandle(self.instance_mutex)
         self.root.destroy()
 
 

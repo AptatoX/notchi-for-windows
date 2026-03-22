@@ -5,6 +5,7 @@ This folder contains the Windows desktop release of Notchi.
 ## Features
 
 - Auto-installs a Claude Code hook on startup
+- Auto-launches the app when Claude Code emits an event and Notchi is not already running
 - Receives live Claude Code events over `127.0.0.1:8765`
 - Shows one animated mascot per active Claude Code session
 - Supports automatic state switching:
