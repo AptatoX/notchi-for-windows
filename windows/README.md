@@ -25,6 +25,7 @@ This folder contains the Windows desktop release of Notchi.
 ```powershell
 git clone https://github.com/AptatoX/notchi-for-windows.git
 cd notchi-for-windows/windows
+python -m pip install -r ../requirements.txt
 python app.py
 ```
 
