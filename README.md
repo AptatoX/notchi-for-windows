@@ -6,11 +6,9 @@ This version keeps the original pixel mascot and sprite sheets, but adapts the a
 
 ## Quick Look
 
-![Hide mode preview](assets/windows-hide-preview.png)
-
-![Detail mode preview](assets/windows-detail-preview.png)
-
 ![Animated mascots](assets/windows-mascots.gif)
+
+Animated preview of `happy`, `sad`, `waiting`, and `sleeping` state transitions.
 
 ## What It Does
 

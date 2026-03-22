@@ -1,222 +1,171 @@
 from __future__ import annotations
 
-import time
 from pathlib import Path
-import sys
 
-import tkinter as tk
-from PIL import Image, ImageGrab
+from PIL import Image, ImageDraw, ImageFont
+
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT))
+ASSET_ROOT = ROOT / "notchi" / "notchi" / "Assets.xcassets"
+OUTPUT_GIF = ROOT / "assets" / "windows-mascots.gif"
 
-from windows import app as notchi_app
+CANVAS_SIZE = (760, 300)
+SPRITE_SCALE = 2.2
+SCENE_FRAMES = 12
+FRAME_DURATION_MS = 120
+
+SCENES = [
+    {
+        "state": "working",
+        "emotion": "happy",
+        "title": "Happy",
+        "subtitle": "Claude is actively working on a change",
+        "accent": "#f59e0b",
+    },
+    {
+        "state": "idle",
+        "emotion": "sad",
+        "title": "Sad",
+        "subtitle": "A broken prompt leaves the mascot discouraged",
+        "accent": "#60a5fa",
+    },
+    {
+        "state": "waiting",
+        "emotion": "neutral",
+        "title": "Waiting",
+        "subtitle": "The session pauses for permission or input",
+        "accent": "#34d399",
+    },
+    {
+        "state": "sleeping",
+        "emotion": "neutral",
+        "title": "Sleeping",
+        "subtitle": "Long idle sessions slowly drift to sleep",
+        "accent": "#c084fc",
+    },
+]
 
 
-ASSETS_DIR = ROOT / "assets"
-HIDE_SCREENSHOT = ASSETS_DIR / "windows-hide-preview.png"
-DETAIL_SCREENSHOT = ASSETS_DIR / "windows-detail-preview.png"
-GIF_OUTPUT = ASSETS_DIR / "windows-mascots.gif"
-
-
-def _sample_payloads() -> list[dict[str, str]]:
-    cwd_root = ROOT.parent
-    return [
-        {
-            "session_id": "session-alpha",
-            "cwd": str(cwd_root / "notchi"),
-            "event": "UserPromptSubmit",
-            "user_prompt": "thanks this is awesome, ship it",
-            "status": "",
-        },
-        {
-            "session_id": "session-alpha",
-            "cwd": str(cwd_root / "notchi"),
-            "event": "PreToolUse",
-            "tool": "Edit",
-            "status": "",
-        },
-        {
-            "session_id": "session-beta",
-            "cwd": str(cwd_root / "demo-api"),
-            "event": "PermissionRequest",
-            "tool": "Bash",
-            "status": "",
-        },
-        {
-            "session_id": "session-gamma",
-            "cwd": str(cwd_root / "broken-build"),
-            "event": "UserPromptSubmit",
-            "user_prompt": "error bug fail cannot work",
-            "status": "",
-        },
-        {
-            "session_id": "session-gamma",
-            "cwd": str(cwd_root / "broken-build"),
-            "event": "Stop",
-            "status": "waiting_for_input",
-        },
+def _font(size: int, bold: bool = False) -> ImageFont.ImageFont:
+    candidates = [
+        "C:/Windows/Fonts/segoeuib.ttf" if bold else "C:/Windows/Fonts/segoeui.ttf",
+        "C:/Windows/Fonts/arialbd.ttf" if bold else "C:/Windows/Fonts/arial.ttf",
     ]
+    for candidate in candidates:
+        path = Path(candidate)
+        if path.exists():
+            return ImageFont.truetype(str(path), size=size)
+    return ImageFont.load_default()
 
 
-def _populate_demo_state(app: notchi_app.NotchiWindowsApp) -> None:
-    for payload in _sample_payloads():
-        app.store.process(payload)
-
-    with app.store._lock:
-        alpha = app.store._sessions["session-alpha"]
-        beta = app.store._sessions["session-beta"]
-        gamma = app.store._sessions["session-gamma"]
-
-        alpha.messages = [
-            "Claude is updating the hook flow and polishing the desktop overlay.",
-            "The Windows port is ready to publish with sprites and detail mode.",
-        ]
-        alpha.events = [
-            "Prompt submitted",
-            "Running Edit",
-            "Finished Edit",
-            "Claude is waiting",
-        ]
-        alpha.current_tool = "Edit"
-        alpha.state = "working"
-        alpha.started_at = time.time() - 420
-
-        beta.messages = ["Claude needs approval before running a shell command."]
-        beta.events = ["Permission requested for Bash", "Claude is waiting"]
-        beta.state = "waiting"
-        beta.emotion = "neutral"
-        beta.started_at = time.time() - 175
-
-        gamma.messages = ["The failing build looks reproducible, and the stack trace is isolated."]
-        gamma.events = ["Prompt submitted", "Claude is waiting"]
-        gamma.state = "idle"
-        gamma.started_at = time.time() - 980
-        gamma.last_activity = time.time() - 20
-
-        app.store._selected_session_id = "session-alpha"
+def _sprite_name_for(state: str, emotion: str) -> str:
+    options = [f"{state}_{emotion}"]
+    if emotion == "sob":
+        options.append(f"{state}_sad")
+    options.append(f"{state}_neutral")
+    for name in options:
+        if (ASSET_ROOT / f"{name}.imageset" / "sprite_sheet.png").exists():
+            return name
+    return f"{state}_neutral"
 
 
-def _create_backdrop(root: tk.Tk, width: int, height: int, x: int, y: int) -> tk.Toplevel:
-    backdrop = tk.Toplevel(root)
-    backdrop.overrideredirect(True)
-    backdrop.geometry(f"{width}x{height}+{x}+{y}")
-    backdrop.configure(bg="#09111f")
-    backdrop.attributes("-topmost", True)
-    canvas = tk.Canvas(backdrop, width=width, height=height, bg="#09111f", highlightthickness=0)
-    canvas.pack(fill="both", expand=True)
-    canvas.create_rectangle(0, 0, width, height, fill="#09111f", outline="")
-    canvas.create_oval(-120, -80, 220, 180, fill="#12314d", outline="")
-    canvas.create_oval(width - 250, 20, width + 40, 240, fill="#163b33", outline="")
-    canvas.create_text(
-        42,
-        28,
-        anchor="nw",
-        text="Notchi for Windows",
-        fill="#dbeafe",
-        font=("Segoe UI", 20, "bold"),
-    )
-    canvas.create_text(
-        42,
-        62,
-        anchor="nw",
-        text="Desktop companion for Claude Code",
-        fill="#93c5fd",
-        font=("Segoe UI", 11),
-    )
-    backdrop.update_idletasks()
-    return backdrop
+def _load_frame(state: str, emotion: str, frame_index: int) -> Image.Image:
+    sprite_name = _sprite_name_for(state, emotion)
+    path = ASSET_ROOT / f"{sprite_name}.imageset" / "sprite_sheet.png"
+    sheet = Image.open(path).convert("RGBA")
+    columns = 5 if state == "compacting" else 6
+    frame_width = sheet.width // columns
+    frame = sheet.crop((frame_index * frame_width, 0, (frame_index + 1) * frame_width, sheet.height))
+    alpha_box = frame.getchannel("A").getbbox()
+    if alpha_box is not None:
+        left, top, right, bottom = alpha_box
+        frame = frame.crop((max(0, left - 2), max(0, top - 2), min(frame.width, right + 2), min(frame.height, bottom + 2)))
+    scaled_size = (max(48, int(frame.width * SPRITE_SCALE)), max(48, int(frame.height * SPRITE_SCALE)))
+    return frame.resize(scaled_size, Image.Resampling.NEAREST)
 
 
-def _sync_ui(app: notchi_app.NotchiWindowsApp, cycles: int = 4) -> None:
-    for _ in range(cycles):
-        app.root.update_idletasks()
-        app.root.update()
-        time.sleep(0.05)
+def _background(accent: str) -> Image.Image:
+    width, height = CANVAS_SIZE
+    image = Image.new("RGBA", CANVAS_SIZE, "#08111f")
+    draw = ImageDraw.Draw(image)
+    draw.rectangle((0, 0, width, height), fill="#08111f")
+    draw.ellipse((-140, -80, 240, 240), fill="#0e2640")
+    draw.ellipse((width - 280, 20, width + 40, 250), fill="#132d2d")
+    draw.rounded_rectangle((24, 22, width - 24, height - 22), radius=28, outline="#20304a", width=2, fill="#0b1526")
+    draw.rounded_rectangle((40, 40, 210, 74), radius=17, fill=accent)
+    draw.rounded_rectangle((220, 40, width - 40, 74), radius=17, fill="#101c31")
+    return image
 
 
-def _grab_bbox(path: Path, bbox: tuple[int, int, int, int]) -> None:
-    image = ImageGrab.grab(bbox=bbox, all_screens=True)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    image.save(path)
+def _draw_grass_band(draw: ImageDraw.ImageDraw, width: int, height: int) -> None:
+    left = 176
+    right = width - 176
+    base_y = height - 62
+    draw.ellipse((left + 26, base_y - 2, right - 26, base_y + 18), fill="#0b1020")
+    draw.ellipse((left, base_y - 16, right, base_y + 10), fill="#5d7c67")
+    draw.ellipse((left + 12, base_y - 18, right - 12, base_y - 4), fill="#86a390")
 
 
-def _window_bbox(window: tk.Misc) -> tuple[int, int, int, int]:
-    return (
-        window.winfo_rootx(),
-        window.winfo_rooty(),
-        window.winfo_rootx() + window.winfo_width(),
-        window.winfo_rooty() + window.winfo_height(),
-    )
+def _draw_scene_labels(draw: ImageDraw.ImageDraw, scene: dict[str, str]) -> None:
+    title_font = _font(18, bold=True)
+    subtitle_font = _font(16)
+    label_font = _font(32, bold=True)
+    small_font = _font(14)
+
+    draw.text((58, 46), "Notchi for Windows", fill="#f8fafc", font=title_font)
+    draw.text((236, 48), "Animated Claude Code companion for Windows", fill="#8fb2d8", font=subtitle_font)
+    draw.text((58, 100), scene["title"], fill="#ffffff", font=label_font)
+    draw.text((58, 146), scene["subtitle"], fill="#b9c8dc", font=subtitle_font)
+
+    chips = ["happy", "sad", "waiting", "sleeping"]
+    x = 58
+    for chip in chips:
+        active = chip == scene["title"].lower()
+        fill = scene["accent"] if active else "#101c31"
+        text_fill = "#0b1526" if active else "#94a3b8"
+        chip_width = 96 if chip != "sleeping" else 108
+        draw.rounded_rectangle((x, 196, x + chip_width, 226), radius=15, fill=fill)
+        draw.text((x + 18, 202), chip.title(), fill=text_fill, font=small_font)
+        x += chip_width + 10
 
 
-def _hero_bbox(app: notchi_app.NotchiWindowsApp, padding: int = 10) -> tuple[int, int, int, int]:
-    widget = app.hero
-    return (
-        widget.winfo_rootx() - padding,
-        widget.winfo_rooty() - padding,
-        widget.winfo_rootx() + widget.winfo_width() + padding,
-        widget.winfo_rooty() + widget.winfo_height() + padding,
-    )
+def _compose_frame(scene: dict[str, str], frame_index: int) -> Image.Image:
+    image = _background(scene["accent"])
+    draw = ImageDraw.Draw(image)
+    _draw_scene_labels(draw, scene)
+    _draw_grass_band(draw, *CANVAS_SIZE)
+
+    frame_count = 5 if scene["state"] == "compacting" else 6
+    sprite = _load_frame(scene["state"], scene["emotion"], frame_index % frame_count)
+    bob_amplitude = {
+        "working": 7,
+        "idle": 4,
+        "waiting": 3,
+        "sleeping": 1,
+    }.get(scene["state"], 3)
+    bob = ((frame_index % 6) - 2.5) * bob_amplitude / 6
+    sprite_x = 560
+    sprite_y = 184 + int(bob)
+    image.alpha_composite(sprite, (int(sprite_x - sprite.width / 2), int(sprite_y - sprite.height / 2)))
+    return image
 
 
-def _generate_gif(app: notchi_app.NotchiWindowsApp) -> None:
+def build_gif() -> None:
     frames: list[Image.Image] = []
-    app.details_visible = False
-    app.update_layout()
-    _sync_ui(app)
-    for _ in range(10):
-        app.animation_phase += 0.35
-        app.frame_tick += 0.7
-        app.render_mascot(app.store.snapshot())
-        _sync_ui(app, cycles=1)
-        frame = ImageGrab.grab(bbox=_hero_bbox(app), all_screens=True).convert("P", palette=Image.ADAPTIVE)
-        frames.append(frame)
+    for scene in SCENES:
+        for frame_index in range(SCENE_FRAMES):
+            frames.append(_compose_frame(scene, frame_index).convert("P", palette=Image.Palette.ADAPTIVE))
 
+    OUTPUT_GIF.parent.mkdir(parents=True, exist_ok=True)
     frames[0].save(
-        GIF_OUTPUT,
+        OUTPUT_GIF,
         save_all=True,
         append_images=frames[1:],
-        duration=120,
+        duration=FRAME_DURATION_MS,
         loop=0,
         disposal=2,
     )
 
 
-def main() -> None:
-    notchi_app.APP_PORT = 0
-    original_auto_install = notchi_app.NotchiWindowsApp._auto_install_hook
-    notchi_app.NotchiWindowsApp._auto_install_hook = lambda self: self.status_var.set("Preview mode")
-    app = notchi_app.NotchiWindowsApp()
-
-    try:
-        app.root.geometry("520x430+160+120")
-        _populate_demo_state(app)
-
-        backdrop = _create_backdrop(app.root, 860, 560, 40, 60)
-
-        app.details_visible = False
-        app.update_layout()
-        app.render()
-        _sync_ui(app)
-        _grab_bbox(HIDE_SCREENSHOT, _window_bbox(app.root))
-
-        app.details_visible = True
-        app.update_layout()
-        app.render()
-        _sync_ui(app)
-        _grab_bbox(DETAIL_SCREENSHOT, _window_bbox(app.root))
-
-        _generate_gif(app)
-        backdrop.destroy()
-    finally:
-        try:
-            app.server.server_close()
-            app.root.destroy()
-        except Exception:
-            pass
-        notchi_app.NotchiWindowsApp._auto_install_hook = original_auto_install
-
-
 if __name__ == "__main__":
-    main()
+    build_gif()
