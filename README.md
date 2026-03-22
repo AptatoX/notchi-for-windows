@@ -44,7 +44,8 @@ Not ported yet:
 ## Run
 
 ```powershell
-cd C:\Users\admin\Desktop\Codex\notchi\windows
+git clone https://github.com/AptatoX/notchi-for-windows.git
+cd notchi-for-windows/windows
 python app.py
 ```
 
