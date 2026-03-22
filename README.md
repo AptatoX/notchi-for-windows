@@ -5,6 +5,8 @@
 
 A macOS notch companion that reacts to Claude Code activity in real-time.
 
+This repository also includes an in-progress Windows port in [windows/](./windows/README.md).
+
 https://github.com/user-attachments/assets/e417bd40-cae8-47c0-998a-905166cf3513
 
 ## What it does

@@ -56,3 +56,6 @@ website/.astro/
 # Temporary
 *.log
 tmp/
+__pycache__/
+*.pyc
+windows/test.txt
