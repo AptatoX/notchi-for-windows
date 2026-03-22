@@ -15,7 +15,7 @@ function Send-NotchiPayload {
 }
 
 function Start-NotchiApp {
-    if ([string]::IsNullOrWhiteSpace($appDir) -or $appDir -eq "__NOTCHI_APP_DIR__") {
+    if ([string]::IsNullOrWhiteSpace($appDir)) {
         return $false
     }
 
