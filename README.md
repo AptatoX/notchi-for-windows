@@ -6,7 +6,9 @@ This version keeps the original pixel mascot and sprite sheets, but adapts the a
 
 ## Quick Look
 
-![Animated mascots](assets/windows-mascots.gif)
+<p align="center">
+  <img src="assets/windows-mascots.gif" alt="Animated mascots" width="640">
+</p>
 
 Animated preview of `happy`, `sad`, `waiting`, and `sleeping` state transitions.
 

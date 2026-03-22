@@ -9,8 +9,8 @@ ROOT = Path(__file__).resolve().parent.parent
 ASSET_ROOT = ROOT / "notchi" / "notchi" / "Assets.xcassets"
 OUTPUT_GIF = ROOT / "assets" / "windows-mascots.gif"
 
-CANVAS_SIZE = (760, 300)
-SPRITE_SCALE = 2.2
+CANVAS_SIZE = (640, 260)
+SPRITE_SCALE = 2.0
 SCENE_FRAMES = 12
 FRAME_DURATION_MS = 120
 
@@ -89,43 +89,43 @@ def _background(accent: str) -> Image.Image:
     image = Image.new("RGBA", CANVAS_SIZE, "#08111f")
     draw = ImageDraw.Draw(image)
     draw.rectangle((0, 0, width, height), fill="#08111f")
-    draw.ellipse((-140, -80, 240, 240), fill="#0e2640")
-    draw.ellipse((width - 280, 20, width + 40, 250), fill="#132d2d")
-    draw.rounded_rectangle((24, 22, width - 24, height - 22), radius=28, outline="#20304a", width=2, fill="#0b1526")
-    draw.rounded_rectangle((40, 40, 210, 74), radius=17, fill=accent)
-    draw.rounded_rectangle((220, 40, width - 40, 74), radius=17, fill="#101c31")
+    draw.ellipse((-140, -80, 220, 220), fill="#0e2640")
+    draw.ellipse((width - 230, 20, width + 30, 220), fill="#132d2d")
+    draw.rounded_rectangle((20, 18, width - 20, height - 18), radius=24, outline="#20304a", width=2, fill="#0b1526")
+    draw.rounded_rectangle((32, 32, 178, 62), radius=15, fill=accent)
+    draw.rounded_rectangle((188, 32, width - 32, 62), radius=15, fill="#101c31")
     return image
 
 
 def _draw_grass_band(draw: ImageDraw.ImageDraw, width: int, height: int) -> None:
-    left = 176
-    right = width - 176
-    base_y = height - 62
-    draw.ellipse((left + 26, base_y - 2, right - 26, base_y + 18), fill="#0b1020")
-    draw.ellipse((left, base_y - 16, right, base_y + 10), fill="#5d7c67")
-    draw.ellipse((left + 12, base_y - 18, right - 12, base_y - 4), fill="#86a390")
+    left = 144
+    right = width - 120
+    base_y = height - 52
+    draw.ellipse((left + 22, base_y - 2, right - 22, base_y + 16), fill="#0b1020")
+    draw.ellipse((left, base_y - 14, right, base_y + 8), fill="#5d7c67")
+    draw.ellipse((left + 10, base_y - 16, right - 10, base_y - 4), fill="#86a390")
 
 
 def _draw_scene_labels(draw: ImageDraw.ImageDraw, scene: dict[str, str]) -> None:
-    title_font = _font(18, bold=True)
-    subtitle_font = _font(16)
-    label_font = _font(32, bold=True)
-    small_font = _font(14)
+    title_font = _font(16, bold=True)
+    subtitle_font = _font(13)
+    label_font = _font(28, bold=True)
+    small_font = _font(12)
 
-    draw.text((58, 46), "Notchi for Windows", fill="#f8fafc", font=title_font)
-    draw.text((236, 48), "Animated Claude Code companion for Windows", fill="#8fb2d8", font=subtitle_font)
-    draw.text((58, 100), scene["title"], fill="#ffffff", font=label_font)
-    draw.text((58, 146), scene["subtitle"], fill="#b9c8dc", font=subtitle_font)
+    draw.text((48, 38), "Notchi for Windows", fill="#f8fafc", font=title_font)
+    draw.text((196, 40), "Animated Claude Code companion for Windows", fill="#8fb2d8", font=subtitle_font)
+    draw.text((48, 88), scene["title"], fill="#ffffff", font=label_font)
+    draw.text((48, 128), scene["subtitle"], fill="#b9c8dc", font=subtitle_font)
 
     chips = ["happy", "sad", "waiting", "sleeping"]
-    x = 58
+    x = 48
     for chip in chips:
         active = chip == scene["title"].lower()
         fill = scene["accent"] if active else "#101c31"
         text_fill = "#0b1526" if active else "#94a3b8"
         chip_width = 96 if chip != "sleeping" else 108
-        draw.rounded_rectangle((x, 196, x + chip_width, 226), radius=15, fill=fill)
-        draw.text((x + 18, 202), chip.title(), fill=text_fill, font=small_font)
+        draw.rounded_rectangle((x, 170, x + chip_width, 198), radius=14, fill=fill)
+        draw.text((x + 16, 176), chip.title(), fill=text_fill, font=small_font)
         x += chip_width + 10
 
 
@@ -144,8 +144,8 @@ def _compose_frame(scene: dict[str, str], frame_index: int) -> Image.Image:
         "sleeping": 1,
     }.get(scene["state"], 3)
     bob = ((frame_index % 6) - 2.5) * bob_amplitude / 6
-    sprite_x = 560
-    sprite_y = 184 + int(bob)
+    sprite_x = 486
+    sprite_y = 164 + int(bob)
     image.alpha_composite(sprite, (int(sprite_x - sprite.width / 2), int(sprite_y - sprite.height / 2)))
     return image
 
