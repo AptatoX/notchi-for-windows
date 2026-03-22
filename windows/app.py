@@ -585,7 +585,7 @@ class NotchiWindowsApp:
         self.parser = ConversationParser()
         self.store = SessionStore(self.parser)
         self.installer = HookInstaller(self.base_dir)
-        self.sprite_renderer = SpriteRenderer(self.base_dir.parent / "notchi" / "notchi" / "Assets.xcassets")
+        self.sprite_renderer = SpriteRenderer(self.base_dir / "assets" / "sprites")
         self.drag_origin: tuple[int, int] | None = None
         self.details_visible = False
         self.animation_phase = 0.0

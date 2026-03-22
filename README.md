@@ -1,8 +1,8 @@
 # Notchi for Windows
 
-A Windows desktop port of [sk-ruban/notchi](https://github.com/sk-ruban/notchi), built for Claude Code.
+A Windows desktop companion inspired by and ported from [sk-ruban/notchi](https://github.com/sk-ruban/notchi), built for Claude Code.
 
-This version keeps the original pixel mascot and sprite sheets, but adapts the app to Windows with a small always-on-top overlay, PowerShell hooks, and local event listening.
+This repository is now a Windows-only release. It keeps the original pixel mascot and sprite sheets, but adapts the app to Windows with a small always-on-top overlay, PowerShell hooks, and local event listening.
 
 ## Quick Look
 
@@ -16,7 +16,7 @@ Animated preview of `happy`, `sad`, `waiting`, and `sleeping` state transitions.
 
 - Reacts to Claude Code activity in real time
 - Shows one sprite per Claude Code session
-- Uses the original Notchi sprite animations from the upstream project
+- Uses bundled Notchi sprite animations adapted from the upstream project
 - Switches between `idle`, `working`, `waiting`, `compacting`, and `sleeping`
 - Switches emotions between `neutral`, `happy`, `sad`, and `sob`
 - Lets you hide to a compact mascot-only view or expand into a detail panel
@@ -32,13 +32,12 @@ Implemented today:
 - Multi-session sprite rendering
 - Detail panel with recent prompt, reply, and activity info
 - Automatic state and emotion switching
-- Original upstream sprite-sheet assets
+- Bundled sprite-sheet assets for the Windows app
 
 Not ported yet:
 
-- macOS notch UI
-- Sparkle auto-updates
-- macOS keychain integration
+- exact notch-shaped macOS UI
+- Sparkle-style auto-updates
 - exact visual parity with the native Swift app
 
 ## Run
@@ -55,8 +54,8 @@ More Windows-specific notes are in [windows/README.md](windows/README.md).
 
 ## Project Structure
 
-- [windows/](windows/README.md): Windows app and PowerShell hook
-- [notchi/notchi/Assets.xcassets](notchi/notchi/Assets.xcassets): original upstream sprite assets
+- [windows/](windows/README.md): Windows app, hook, and bundled sprite assets
+- [scripts/](scripts): helper scripts for Windows media generation and cleanup
 
 ## Attribution
 
@@ -66,7 +65,7 @@ Credits to the original authors for:
 
 - the app concept
 - sprite art and animation
-- macOS implementation and interaction design
+- the original macOS implementation and interaction design
 
 ## License
 

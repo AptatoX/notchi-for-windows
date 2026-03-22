@@ -1,6 +1,6 @@
 # Notchi for Windows
 
-This folder contains the Windows desktop port of Notchi.
+This folder contains the Windows desktop release of Notchi.
 
 ## Features
 
@@ -36,9 +36,9 @@ python app.py
 
 ## Notes
 
-- The Windows port is standalone and does not modify the upstream Xcode project.
+- The Windows app is self-contained and does not depend on the original Xcode project.
 - It uses PowerShell hooks and a local TCP listener instead of the macOS Unix socket flow.
-- The app uses the original upstream sprite sheets from `notchi/notchi/Assets.xcassets`.
+- Bundled sprite sheets live under `windows/assets/sprites`.
 
 ## Attribution
 

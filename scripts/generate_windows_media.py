@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 
 ROOT = Path(__file__).resolve().parent.parent
-ASSET_ROOT = ROOT / "notchi" / "notchi" / "Assets.xcassets"
+ASSET_ROOT = ROOT / "windows" / "assets" / "sprites"
 OUTPUT_GIF = ROOT / "assets" / "windows-mascots.gif"
 
 CANVAS_SIZE = (640, 260)

@@ -1,25 +1,3 @@
-# Reference repos
-/reference/
-
-# Xcode
-build/
-DerivedData/
-*.xcuserstate
-**/*.xcworkspace/xcuserdata/
-**/*.xcodeproj/xcuserdata/
-**/*.xcodeproj/project.xcworkspace/xcuserdata/
-
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
-._*
-
-# Swift Package Manager
-.build/
-.swiftpm/
-Package.resolved
-
 # IDE
 *.swp
 *.swo
@@ -27,31 +5,14 @@ Package.resolved
 .idea/
 .vscode/
 
-# Archives
-*.xcarchive
-*.ipa
-*.dSYM.zip
-*.dSYM
-
 # Secrets
 .env
-.sparkle-keys/
 
 # Claude
 CLAUDE.md
 AGENTS.md
 PLAN.md
 FUTURE_WORK.md
-
-# Distribution
-*.dmg
-*.app
-*.pkg
-
-# Website
-website/node_modules/
-website/dist/
-website/.astro/
 
 # Temporary
 *.log
