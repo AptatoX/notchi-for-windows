@@ -4,6 +4,14 @@ A Windows desktop port of [sk-ruban/notchi](https://github.com/sk-ruban/notchi),
 
 This version keeps the original pixel mascot and sprite sheets, but adapts the app to Windows with a small always-on-top overlay, PowerShell hooks, and local event listening.
 
+## Quick Look
+
+![Hide mode preview](assets/windows-hide-preview.png)
+
+![Detail mode preview](assets/windows-detail-preview.png)
+
+![Animated mascots](assets/windows-mascots.gif)
+
 ## What It Does
 
 - Reacts to Claude Code activity in real time
