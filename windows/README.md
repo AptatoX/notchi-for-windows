@@ -1,27 +1,27 @@
 # Notchi for Windows
 
-This folder contains the Windows desktop release of Notchi.
+Esta pasta contém o lançamento de desktop do Notchi para Windows.
 
-## Features
+## Recursos
 
-- Auto-installs a Claude Code hook on startup
-- Auto-launches the app when Claude Code emits an event and Notchi is not already running
-- Receives live Claude Code events over `127.0.0.1:8765`
-- Shows one animated mascot per active Claude Code session
-- Supports automatic state switching:
-  - `idle`
-  - `working`
-  - `waiting`
-  - `compacting`
-  - `sleeping`
-- Supports automatic emotion switching:
-  - `neutral`
-  - `happy`
-  - `sad`
-  - `sob`
-- Supports compact hide mode and expandable detail mode
+- Instala automaticamente um hook do Claude Code na inicialização
+- Inicia o aplicativo automaticamente quando o Claude Code emite um evento e o Notchi ainda não está em execução
+- Recebe eventos do Claude Code ao vivo através de `127.0.0.1:8765`
+- Mostra um mascote animado por sessão ativa do Claude Code
+- Suporta alternância automática de estado:
+  - `idle` (ocioso)
+  - `working` (trabalhando)
+  - `waiting` (aguardando)
+  - `compacting` (compactando)
+  - `sleeping` (dormindo)
+- Suporta alternância automática de emoção:
+  - `neutral` (neutro)
+  - `happy` (feliz)
+  - `sad` (triste)
+  - `sob` (chorando)
+- Suporta modo oculto compacto e modo de detalhes expansível
 
-## Run
+## Executar
 
 ```powershell
 git clone https://github.com/AptatoX/notchi-for-windows.git
@@ -30,19 +30,19 @@ python -m pip install -r ../requirements.txt
 python app.py
 ```
 
-## Interaction
+## Interação
 
-- Launch: starts in hide mode
-- Double-click a mascot: toggle between hide and detail for that session
-- Multiple Claude Code sessions: each session gets its own mascot
+- Iniciar: começa em modo oculto
+- Duplo clique em um mascote: alterna entre modo oculto e detalhes para aquela sessão
+- Múltiplas sessões do Claude Code: cada sessão recebe seu próprio mascote
 
-## Notes
+## Observações
 
-- The Windows app is self-contained and does not depend on the original Xcode project.
-- It uses PowerShell hooks and a local TCP listener instead of the macOS Unix socket flow.
-- Bundled sprite sheets live under `windows/assets/sprites`.
+- O aplicativo para Windows é autocontido e não depende do projeto Xcode original.
+- Ele usa hooks do PowerShell e um ouvinte TCP local em vez do fluxo de socket Unix do macOS.
+- As sprite sheets incluídas ficam em `windows/assets/sprites`.
 
-## Attribution
+## Atribuição
 
-- Based on [sk-ruban/notchi](https://github.com/sk-ruban/notchi)
-- Original sprite assets and concept remain credited to the upstream project and its authors
+- Baseado em [sk-ruban/notchi](https://github.com/sk-ruban/notchi)
+- Os recursos originais de sprites e o conceito permanecem creditados ao projeto original e seus autores

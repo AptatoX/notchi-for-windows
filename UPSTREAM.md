@@ -1,11 +1,11 @@
-# Upstream Attribution
+# Atribuição Original
 
-This Windows release is based on the original [sk-ruban/notchi](https://github.com/sk-ruban/notchi) project.
+Este lançamento para Windows é baseado no projeto original [sk-ruban/notchi](https://github.com/sk-ruban/notchi).
 
-The following parts are adapted from the upstream project:
+As seguintes partes foram adaptadas do projeto original:
 
-- app concept
-- mascot art and sprite animation
-- state and emotion model names
+- conceito do aplicativo
+- arte do mascote e animação dos sprites
+- nomes do modelo de estados e emoções
 
-This repository intentionally keeps the Windows port as a standalone Python application instead of the original macOS Swift/Xcode structure.
+Este repositório mantém intencionalmente a versão para Windows como um aplicativo Python independente, em vez da estrutura Swift/Xcode original do macOS.
