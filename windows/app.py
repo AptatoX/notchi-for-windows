@@ -407,17 +407,17 @@ class SessionStore:
     @staticmethod
     def _format_event_line(event_name: str, tool: str, status: str) -> str:
         labels = {
-            "UserPromptSubmit": "Prompt submitted",
-            "SessionStart": "Session started",
-            "PreToolUse": f"Running {tool or 'tool'}",
-            "PostToolUse": f"Finished {tool or 'tool'}",
-            "PermissionRequest": f"Permission requested for {tool or 'tool'}",
-            "PreCompact": "Compacting context",
-            "Stop": "Claude is waiting",
-            "SubagentStop": "Subagent is waiting",
-            "SessionEnd": "Session ended",
+            "UserPromptSubmit": "Prompt enviado",
+            "SessionStart": "Sessão iniciada",
+            "PreToolUse": f"Executando {tool or 'ferramenta'}",
+            "PostToolUse": f"Finalizou {tool or 'ferramenta'}",
+            "PermissionRequest": f"Permissão solicitada para {tool or 'ferramenta'}",
+            "PreCompact": "Compactando contexto",
+            "Stop": "Claude está aguardando",
+            "SubagentStop": "Subagente está aguardando",
+            "SessionEnd": "Sessão encerrada",
         }
-        suffix = " (error)" if status == "error" else ""
+        suffix = " (erro)" if status == "error" else ""
         return labels.get(event_name, event_name) + suffix
 
 
@@ -431,7 +431,7 @@ class HookInstaller:
 
     def install(self) -> tuple[bool, str]:
         if not self.claude_dir.exists():
-            return False, f"Claude config directory not found: {self.claude_dir}"
+            return False, f"Diretório de configuração do Claude não encontrado: {self.claude_dir}"
 
         self.hooks_dir.mkdir(parents=True, exist_ok=True)
         hook_source = self.app_dir / "notchi-hook.ps1"
@@ -473,7 +473,7 @@ class HookInstaller:
 
         data["hooks"] = hooks
         self.settings_path.write_text(json.dumps(data, indent=2, sort_keys=True), encoding="utf-8")
-        return True, f"Installed hook into {self.installed_hook}"
+        return True, f"Hook instalado em {self.installed_hook}"
 
     def is_installed(self) -> bool:
         if not self.settings_path.exists():
@@ -608,8 +608,8 @@ class NotchiWindowsApp:
         self.server.app = self
         self.server_thread = threading.Thread(target=self.server.serve_forever, daemon=True)
 
-        self.status_var = tk.StringVar(value="Starting listener...")
-        self.toggle_var = tk.StringVar(value="Details")
+        self.status_var = tk.StringVar(value="Iniciando ouvinte...")
+        self.toggle_var = tk.StringVar(value="Detalhes")
         self._build_ui()
         self._auto_install_hook()
 
@@ -643,13 +643,13 @@ class NotchiWindowsApp:
         actions.pack(side="right")
 
         tk.Button(actions, textvariable=self.toggle_var, command=self.toggle_details, bg="#0f172a", fg="#cbd5e1", activebackground="#1e293b", activeforeground="#f8fafc", relief="flat", padx=8, pady=4).pack(side="left", padx=(0, 6))
-        tk.Button(actions, text="Install Hook", command=self.install_hook, bg="#2563eb", fg="white", activebackground="#1d4ed8", activeforeground="white", relief="flat", padx=10, pady=4).pack(side="left", padx=(0, 6))
-        tk.Button(actions, text="Close", command=self.shutdown, bg="#1f2937", fg="#cbd5e1", activebackground="#374151", activeforeground="#f8fafc", relief="flat", padx=10, pady=4).pack(side="left")
+        tk.Button(actions, text="Instalar Hook", command=self.install_hook, bg="#2563eb", fg="white", activebackground="#1d4ed8", activeforeground="white", relief="flat", padx=10, pady=4).pack(side="left", padx=(0, 6))
+        tk.Button(actions, text="Fechar", command=self.shutdown, bg="#1f2937", fg="#cbd5e1", activebackground="#374151", activeforeground="#f8fafc", relief="flat", padx=10, pady=4).pack(side="left")
 
         self.floating_actions = tk.Frame(self.frame, bg="#111827", bd=0, highlightthickness=1, highlightbackground="#334155")
         self.floating_install = tk.Button(
             self.floating_actions,
-            text="Install",
+            text="Instalar",
             command=self.install_hook,
             bg="#2563eb",
             fg="white",
@@ -714,7 +714,7 @@ class NotchiWindowsApp:
 
     def _auto_install_hook(self) -> None:
         ok, message = self.installer.install()
-        self.status_var.set(message if ok else f"Auto-install skipped: {message}")
+        self.status_var.set(message if ok else f"Instalação automática ignorada: {message}")
 
     def _set_tool_window_style(self) -> None:
         try:
@@ -755,14 +755,14 @@ class NotchiWindowsApp:
             self.status_label.pack(fill="x", padx=14)
             self.body_frame.pack(fill="both", expand=True, padx=14, pady=(8, 12))
             self.root.geometry("520x430")
-            self.toggle_var.set("Hide")
+            self.toggle_var.set("Ocultar")
         else:
             self.frame.configure(bg=TRANSPARENT_KEY, highlightthickness=0)
             self.root.configure(bg=TRANSPARENT_KEY)
             self.hero.configure(bg=TRANSPARENT_KEY)
             self.hero.configure(width=372, height=110)
             self.root.geometry("420x180")
-            self.toggle_var.set("Details")
+            self.toggle_var.set("Detalhes")
             self.floating_actions.place(relx=1.0, x=-18, y=10, anchor="ne")
         self._configure_transparency()
 
@@ -794,31 +794,31 @@ class NotchiWindowsApp:
         ok, message = self.installer.install()
         self.status_var.set(message)
         if not ok:
-            messagebox.showerror("Hook install failed", message)
+            messagebox.showerror("Falha ao instalar hook", message)
 
     def render(self) -> None:
         sessions = self.store.snapshot()
         focused = self.store.effective_session()
-        installed = "installed" if self.installer.is_installed() else "not installed"
-        self.status_var.set(f"Listening on {APP_HOST}:{APP_PORT} | Claude hook {installed} | Active sessions: {len(sessions)}")
+        installed = "instalado" if self.installer.is_installed() else "não instalado"
+        self.status_var.set(f"Ouvindo em {APP_HOST}:{APP_PORT} | Hook do Claude {installed} | Sessões ativas: {len(sessions)}")
         self.render_mascot(sessions)
 
         lines: list[str] = []
         if not sessions:
-            lines.append("No active Claude Code sessions yet.")
+            lines.append("Nenhuma sessão ativa do Claude Code ainda.")
             lines.append("")
-            lines.append("1. Start this app.")
-            lines.append("2. Click 'Install Hook'.")
-            lines.append("3. Open Claude Code and use it normally.")
+            lines.append("1. Inicie este aplicativo.")
+            lines.append("2. Clique em 'Instalar Hook'.")
+            lines.append("3. Abra o Claude Code e use normalmente.")
         elif focused is not None:
-            lines.append(f"Selected: {focused.project_name} [{focused.state}]")
-            lines.append(f"Duration: {focused.duration}")
-            lines.append(f"Emotion: {focused.emotion}")
+            lines.append(f"Selecionado: {focused.project_name} [{focused.state}]")
+            lines.append(f"Duração: {focused.duration}")
+            lines.append(f"Emoção: {focused.emotion}")
             if focused.last_prompt:
                 lines.append(f"Prompt: {focused.last_prompt}")
             if focused.current_tool:
-                lines.append(f"Tool: {focused.current_tool}")
-            lines.append(f"Mode: {focused.permission_mode}")
+                lines.append(f"Ferramenta: {focused.current_tool}")
+            lines.append(f"Modo: {focused.permission_mode}")
             if focused.messages:
                 lines.append("Claude:")
                 for message in focused.messages[-2:]:
@@ -826,12 +826,12 @@ class NotchiWindowsApp:
                     if len(preview) > 180:
                         preview = preview[:177] + "..."
                     lines.append(f"  {preview}")
-            lines.append("Recent:")
+            lines.append("Recentes:")
             for entry in focused.events[-4:]:
                 lines.append(f"  - {entry}")
             if len(sessions) > 1:
                 lines.append("")
-                lines.append("Other Sessions:")
+                lines.append("Outras Sessões:")
                 for session in sessions:
                     if session.session_id == focused.session_id:
                         continue
@@ -891,7 +891,7 @@ class NotchiWindowsApp:
         focused_state = focused.state if focused is not None else "idle"
         focused_emotion = focused.emotion if focused is not None else "neutral"
         if self.details_visible and focused is None:
-            canvas.create_text(156, 60, text="Install the hook and start a session.", anchor="w", fill="#cbd5e1", font=("Segoe UI", 10), width=290)
+            canvas.create_text(156, 60, text="Instale o hook e inicie uma sessão.", anchor="w", fill="#cbd5e1", font=("Segoe UI", 10), width=290)
 
     @staticmethod
     def _draw_grass_band(canvas: tk.Canvas, width: int, height: int) -> None:
@@ -911,10 +911,10 @@ class NotchiWindowsApp:
             preview = session.messages[-1].replace("\n", " ").strip()
             return preview[:72] + ("..." if len(preview) > 72 else "")
         if session.current_tool:
-            return f"Using {session.current_tool}"
+            return f"Usando {session.current_tool}"
         if session.last_prompt:
             return session.last_prompt[:72] + ("..." if len(session.last_prompt) > 72 else "")
-        return f"Mode: {session.permission_mode}"
+        return f"Modo: {session.permission_mode}"
 
     @staticmethod
     def _sprite_canvas_x(index: int, total: int, width: int) -> float:
